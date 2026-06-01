@@ -1,12 +1,3 @@
-/**
- * File: HomeMain.tsx
- *
- * Description: Main home screen displaying personalized greeting, daily quote,
- * meditation streak, quick-start actions, and featured content sections.
- *
- * Author: Navnit(Ninjacode911)
- */
-
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
@@ -23,9 +14,13 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '../navigation/types';
 import { homeService, HomeFeedData } from '../services/home.service';
 import { ErrorBanner } from '../components/shared/ErrorBanner';
 import { getDailyQuote, getRandomQuote } from '../data/ammaQuotes';
+import { scale, verticalScale, moderateScale } from '../utils/responsive';
 
 const getGreetingTime = (): string => {
   const hour = new Date().getHours();
@@ -68,6 +63,11 @@ const ALL_TRENDING_VIDEOS: TrendingVideo[] = [
   { id: '6', title: 'Conversations with Amma | Wisdom & Teachings', instructor: 'Amma (Mata Amritanandamayi)', duration: '22:15', views: '870K', youtubeId: 'AbpBM_qKZ5g', thumbnailUrl: 'https://i.ytimg.com/vi/AbpBM_qKZ5g/hqdefault.jpg' },
 ];
 
+const LIVE_EVENTS = [
+  { id: 'le-1', title: 'Global Peace Meditation', event_date: new Date().toISOString(), instructor_name: 'Amma', thumbnail_url: null, is_live: true, category: 'meditation' },
+  { id: 'le-2', title: 'Live Satsang & Bhajans', event_date: new Date(Date.now() + 86400000).toISOString(), instructor_name: 'Swami Amritaswarupananda Puri', thumbnail_url: null, is_live: true, category: 'wisdom' },
+];
+
 const FALLBACK_FEED: HomeFeedData = {
   greeting: 'Friend',
   dailyQuote: {
@@ -83,9 +83,10 @@ const FALLBACK_FEED: HomeFeedData = {
     { id: 'tc-5', title: 'Guided Meditation & Chanting for Inner Peace', instructor_name: 'Amma (Mata Amritanandamayi)', thumbnail_url: 'https://i.ytimg.com/vi/B_iEiNyr88U/hqdefault.jpg', estimated_duration_minutes: 25, difficulty_level: 'beginner', is_premium: false } as HomeFeedData['trendingCourses'][number],
   ],
   upcomingEvents: [
-    { id: 'ev-0', title: 'No Live Events', event_date: new Date().toISOString(), instructor_name: '', thumbnail_url: null, is_live: false, category: 'none' } as any,
-    { id: 'ev-1', title: 'IAM-20 Course & Refresher in Person', event_date: '2026-05-31T09:00:00.000Z', instructor_name: 'Amma IAM Team', thumbnail_url: null, is_live: false, category: 'meditation', booking_url: 'https://na.amma.org/groups/north-america/iam-meditation/events/iam-20-course-refresher-person' } as any,
-    { id: 'ev-2', title: 'IAM-20 Course & 8-Day Guided Immersion', event_date: '2026-06-11T09:00:00.000Z', instructor_name: 'Amma IAM Team', thumbnail_url: null, is_live: false, category: 'meditation', booking_url: 'https://na.amma.org/groups/north-america/iam-meditation/events/iam-20-course-southern-california-iam-team' } as any,
+    { id: 'ev-live', title: 'Global Peace Meditation (Live)', event_date: new Date().toISOString(), instructor_name: 'Amma Admin', thumbnail_url: null, is_live: true, category: 'meditation', booking_url: 'https://youtube.com/live' } as any,
+    { id: 'ev-1', title: 'Bharat Yatra 2026: Amma Embraces Mangaluru', event_date: '2026-05-30T00:00:00.000Z', instructor_name: 'Amma', thumbnail_url: null, is_live: false, category: 'news', booking_url: 'https://amma.org/news/bharat-yatra-2026-amma-embraces-mangaluru/' } as any,
+    { id: 'ev-2', title: 'Village Chronicles – Part 02: Disaster Preparedness and Community Resilience in Odisha', event_date: '2026-05-22T00:00:00.000Z', instructor_name: 'Amma', thumbnail_url: null, is_live: false, category: 'news', booking_url: 'https://amma.org/news/village-chronicles-part-02-disaster-preparedness-and-community-resilience-in-odisha/' } as any,
+    { id: 'ev-3', title: 'UNESCO Chairs Are Among Our Greatest Strengths: Amrita University Hosts South Asia Round Table', event_date: '2026-05-15T00:00:00.000Z', instructor_name: 'Amma', thumbnail_url: null, is_live: false, category: 'news', booking_url: 'https://amma.org/news/unesco-chairs-are-among-our-greatest-strengths-amrita-university-hosts-south-asia-round-table/' } as any,
   ],
   stats: {
     totalMinutes: 0,
@@ -96,6 +97,7 @@ const FALLBACK_FEED: HomeFeedData = {
 const SkeletonCard = () => <View style={s.skeletonCard} />;
 
 const HomeMain = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
   const [feed, setFeed] = useState<HomeFeedData | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -163,6 +165,10 @@ const HomeMain = () => {
       Alert.alert('Event', `Opening "${item.title}"...\n\nEvent details available after backend setup.`);
     }
   };
+
+  const liveEvents = feed?.upcomingEvents?.filter(e => e.is_live) || [];
+  const recentEvents = feed?.upcomingEvents?.filter(e => !e.is_live) || [];
+
   return (
     <SafeAreaView style={s.safeArea} edges={['top']}>
       <ScrollView
@@ -232,15 +238,76 @@ const HomeMain = () => {
           </View>
         </View>
 
-        {/* Live Events Banner */}
-        {feed?.upcomingEvents && feed.upcomingEvents.length > 0 && (
+        {/* Live Events Section */}
+        {liveEvents && liveEvents.length > 0 && (
           <View style={s.sectionWrap}>
-            <Text style={s.sectionTitle}>Upcoming Events</Text>
+            <View style={s.sectionHeaderRow}>
+              <Text style={s.sectionTitleInline}>Live Events</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('EventsMain')}
+              >
+                <Text style={s.seeAllText}>See All</Text>
+              </TouchableOpacity>
+            </View>
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={s.horizontalListPadding}
-              data={feed.upcomingEvents}
+              data={liveEvents}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => {
+                const isNoLive = item.category === 'none';
+                return (
+                  <TouchableOpacity
+                    style={[s.eventCard, isNoLive && s.eventCardMuted]}
+                    onPress={() => isNoLive ? null : handleEventPress(item)}
+                    activeOpacity={isNoLive ? 1 : 0.8}
+                  >
+                    {item.is_live ? (
+                      <View style={s.liveBadge}>
+                        <Text style={s.liveBadgeText}>LIVE</Text>
+                      </View>
+                    ) : isNoLive ? (
+                      <View style={s.liveBadgeMuted}>
+                        <Text style={s.liveBadgeMutedText}>NO LIVE</Text>
+                      </View>
+                    ) : null}
+                    <Text style={[s.eventTitle, isNoLive && s.eventTitleMuted]} numberOfLines={2}>
+                      {item.title}
+                    </Text>
+                    {!isNoLive && (
+                      <Text style={s.eventDate}>
+                        {new Date(item.event_date).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        )}
+
+        {/* Recent Events Banner */}
+        {recentEvents.length > 0 && (
+          <View style={s.sectionWrap}>
+            <View style={s.sectionHeaderRow}>
+              <Text style={s.sectionTitleInline}>Upcoming Events</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('EventsMain', { initialTab: 'past' })}
+              >
+                <Text style={s.seeAllText}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={s.horizontalListPadding}
+              data={recentEvents}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => {
                 const isNoLive = item.category === 'none';
@@ -363,7 +430,7 @@ const HomeMain = () => {
               <Text style={s.modalCloseText}>← Back</Text>
             </TouchableOpacity>
             <Text style={s.modalTitle}>Trending Videos</Text>
-            <View style={{ width: 50 }} />
+            <View style={{ width: scale(50) }} />
           </View>
 
           <View style={s.searchBarContainer}>
@@ -432,76 +499,76 @@ const HomeMain = () => {
 const s = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#FFF5EE' },
   flex1: { flex: 1 },
-  statPillSpaced: { marginLeft: 12 },
-  horizontalListPadding: { paddingHorizontal: 24 },
+  statPillSpaced: { marginLeft: scale(12) },
+  horizontalListPadding: { paddingHorizontal: scale(24) },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 8,
+    paddingHorizontal: scale(24),
+    paddingTop: verticalScale(16),
+    paddingBottom: verticalScale(8),
   },
-  greeting: { fontSize: 24, fontWeight: 'bold', color: '#5C250E' },
+  greeting: { fontSize: moderateScale(24), fontWeight: 'bold', color: '#5C250E' },
   bellBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: scale(40),
+    height: scale(40),
+    borderRadius: scale(20),
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bellIcon: { fontSize: 18 },
-  bellIconImg: { width: 20, height: 20, resizeMode: 'contain' },
-  statsRow: { flexDirection: 'row', paddingHorizontal: 24, marginTop: 16 },
+  bellIcon: { fontSize: moderateScale(18) },
+  bellIconImg: { width: scale(20), height: scale(20), resizeMode: 'contain' },
+  statsRow: { flexDirection: 'row', paddingHorizontal: scale(24), marginTop: verticalScale(16) },
   statPill: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    borderRadius: moderateScale(24),
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(8),
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.12)',
   },
-  statIcon: { fontSize: 14, marginRight: 4 },
-  statIconImg: { width: 18, height: 18, resizeMode: 'contain', marginRight: 4 },
-  statValue: { fontSize: 14, fontWeight: '600', color: '#5C250E' },
-  statLabel: { fontSize: 12, color: '#87553E', marginLeft: 4 },
-  sectionWrap: { marginTop: 24 },
+  statIcon: { fontSize: moderateScale(14), marginRight: scale(4) },
+  statIconImg: { width: scale(18), height: scale(18), resizeMode: 'contain', marginRight: scale(4) },
+  statValue: { fontSize: moderateScale(14), fontWeight: '600', color: '#5C250E' },
+  statLabel: { fontSize: moderateScale(12), color: '#87553E', marginLeft: scale(4) },
+  sectionWrap: { marginTop: verticalScale(24) },
   sectionHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    marginBottom: 12,
+    paddingHorizontal: scale(24),
+    marginBottom: verticalScale(12),
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
     fontWeight: 'bold',
     color: '#5C250E',
-    paddingHorizontal: 24,
-    marginBottom: 12,
+    paddingHorizontal: scale(24),
+    marginBottom: verticalScale(12),
   },
-  sectionTitleInline: { fontSize: 18, fontWeight: 'bold', color: '#5C250E' },
-  seeAllText: { color: '#ED7624', fontSize: 14, fontWeight: '600' },
-  skeletonRow: { flexDirection: 'row', paddingHorizontal: 24 },
+  sectionTitleInline: { fontSize: moderateScale(18), fontWeight: 'bold', color: '#5C250E' },
+  seeAllText: { color: '#ED7624', fontSize: moderateScale(14), fontWeight: '600' },
+  skeletonRow: { flexDirection: 'row', paddingHorizontal: scale(24) },
   skeletonCard: {
     backgroundColor: 'rgba(240, 127, 46, 0.1)',
-    borderRadius: 12,
-    height: 128,
-    width: 192,
-    marginRight: 12,
+    borderRadius: moderateScale(12),
+    height: verticalScale(128),
+    width: scale(192),
+    marginRight: scale(12),
   },
   eventCard: {
     backgroundColor: '#ED7624',
-    borderRadius: 12,
-    width: 256,
-    height: 144,
-    marginRight: 12,
-    padding: 16,
+    borderRadius: moderateScale(12),
+    width: scale(256),
+    height: verticalScale(144),
+    marginRight: scale(12),
+    padding: scale(16),
     justifyContent: 'flex-end',
   },
   eventCardMuted: {
@@ -509,94 +576,94 @@ const s = StyleSheet.create({
   },
   liveBadge: {
     position: 'absolute',
-    top: 12,
-    left: 12,
+    top: verticalScale(12),
+    left: scale(12),
     backgroundColor: '#DC2626',
-    borderRadius: 24,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderRadius: moderateScale(24),
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(4),
   },
-  liveBadgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: 'bold' },
+  liveBadgeText: { color: '#FFFFFF', fontSize: moderateScale(12), fontWeight: 'bold' },
   liveBadgeMuted: {
     position: 'absolute',
-    top: 12,
-    left: 12,
+    top: verticalScale(12),
+    left: scale(12),
     backgroundColor: 'rgba(0,0,0,0.25)',
-    borderRadius: 24,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    borderRadius: moderateScale(24),
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(4),
   },
-  liveBadgeMutedText: { color: 'rgba(255,255,255,0.7)', fontSize: 11, fontWeight: '600' },
-  eventTitle: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 },
+  liveBadgeMutedText: { color: 'rgba(255,255,255,0.7)', fontSize: moderateScale(11), fontWeight: '600' },
+  eventTitle: { color: '#FFFFFF', fontWeight: 'bold', fontSize: moderateScale(16) },
   eventTitleMuted: { color: 'rgba(255,255,255,0.6)' },
-  eventDate: { color: 'rgba(255, 255, 255, 0.7)', fontSize: 12, marginTop: 4 },
+  eventDate: { color: 'rgba(255, 255, 255, 0.7)', fontSize: moderateScale(12), marginTop: verticalScale(4) },
   trendingCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    width: 192,
-    marginRight: 12,
+    borderRadius: moderateScale(12),
+    width: scale(192),
+    marginRight: scale(12),
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.12)',
     overflow: 'hidden',
   },
   trendingThumb: {
-    height: 112,
+    height: verticalScale(112),
     backgroundColor: 'rgba(240, 127, 46, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  trendingThumbIcon: { fontSize: 30 },
+  trendingThumbIcon: { fontSize: moderateScale(30) },
   durationBadge: {
     position: 'absolute',
-    bottom: 8,
-    right: 8,
+    bottom: verticalScale(8),
+    right: scale(8),
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 24,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    borderRadius: moderateScale(24),
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(2),
   },
-  durationBadgeText: { color: '#FFFFFF', fontSize: 12 },
+  durationBadgeText: { color: '#FFFFFF', fontSize: moderateScale(12) },
   playOverlay: {
     position: 'absolute',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: scale(32),
+    height: scale(32),
+    borderRadius: scale(16),
     backgroundColor: 'rgba(0,0,0,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   playIcon: {
     color: '#FFFFFF',
-    fontSize: 14,
-    marginLeft: 2,
+    fontSize: moderateScale(14),
+    marginLeft: scale(2),
   },
-  trendingInfo: { padding: 12 },
-  trendingTitle: { fontSize: 14, fontWeight: '600', color: '#5C250E' },
-  trendingInstructor: { fontSize: 12, color: '#87553E', marginTop: 4 },
-  emptyTrendingWrap: { paddingHorizontal: 24, paddingVertical: 16, alignItems: 'center' },
-  emptyTrendingText: { fontSize: 14, color: '#87553E' },
+  trendingInfo: { padding: scale(12) },
+  trendingTitle: { fontSize: moderateScale(14), fontWeight: '600', color: '#5C250E' },
+  trendingInstructor: { fontSize: moderateScale(12), color: '#87553E', marginTop: verticalScale(4) },
+  emptyTrendingWrap: { paddingHorizontal: scale(24), paddingVertical: verticalScale(16), alignItems: 'center' },
+  emptyTrendingText: { fontSize: moderateScale(14), color: '#87553E' },
   quoteCard: {
-    marginHorizontal: 24,
-    marginTop: 12,
-    marginBottom: 8,
-    padding: 20,
+    marginHorizontal: scale(24),
+    marginTop: verticalScale(12),
+    marginBottom: verticalScale(8),
+    padding: scale(20),
     backgroundColor: 'rgba(240, 127, 46, 0.05)',
-    borderRadius: 12,
+    borderRadius: moderateScale(12),
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.2)',
   },
   quoteLabel: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     textTransform: 'uppercase',
-    letterSpacing: 2,
+    letterSpacing: moderateScale(2),
     color: '#ED7624',
-    marginBottom: 12,
+    marginBottom: verticalScale(12),
     fontWeight: '600',
   },
-  quoteText: { fontSize: 16, color: '#5C250E', lineHeight: 24, fontStyle: 'italic' },
-  quoteAuthor: { fontSize: 14, color: '#87553E', marginTop: 12 },
-  bottomSpacer: { height: 110 },
+  quoteText: { fontSize: moderateScale(16), color: '#5C250E', lineHeight: moderateScale(24), fontStyle: 'italic' },
+  quoteAuthor: { fontSize: moderateScale(14), color: '#87553E', marginTop: verticalScale(12) },
+  bottomSpacer: { height: verticalScale(110) },
   modalContainer: {
     flex: 1,
     backgroundColor: '#FFF5EE',
@@ -605,59 +672,59 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: scale(20),
+    paddingVertical: verticalScale(16),
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(240, 127, 46, 0.1)',
   },
   modalCloseButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 16,
+    paddingVertical: verticalScale(6),
+    paddingHorizontal: scale(12),
+    borderRadius: moderateScale(16),
     backgroundColor: 'rgba(240, 127, 46, 0.1)',
   },
   modalCloseText: {
     color: '#ED7624',
-    fontSize: 14,
+    fontSize: moderateScale(14),
     fontWeight: '600',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
     fontWeight: 'bold',
     color: '#5C250E',
     textAlign: 'center',
     flex: 1,
   },
   searchBarContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: scale(20),
+    paddingVertical: verticalScale(12),
   },
   searchInput: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    fontSize: 14,
+    borderRadius: moderateScale(24),
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(10),
+    fontSize: moderateScale(14),
     color: '#5C250E',
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.15)',
   },
   modalListContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingHorizontal: scale(20),
+    paddingBottom: verticalScale(40),
   },
   modalVideoCard: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    marginBottom: 16,
+    borderRadius: moderateScale(12),
+    marginBottom: verticalScale(16),
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.1)',
     overflow: 'hidden',
-    height: 100,
+    height: verticalScale(100),
   },
   modalVideoThumb: {
-    width: 140,
+    width: scale(140),
     height: '100%',
     backgroundColor: 'rgba(240, 127, 46, 0.2)',
     alignItems: 'center',
@@ -666,31 +733,31 @@ const s = StyleSheet.create({
   },
   modalVideoInfo: {
     flex: 1,
-    padding: 12,
+    padding: scale(12),
     justifyContent: 'center',
   },
   modalVideoTitle: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     fontWeight: '600',
     color: '#5C250E',
-    lineHeight: 18,
+    lineHeight: moderateScale(18),
   },
   modalVideoInstructor: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: '#87553E',
-    marginTop: 4,
+    marginTop: verticalScale(4),
   },
   modalVideoViews: {
-    fontSize: 11,
+    fontSize: moderateScale(11),
     color: '#A0705A',
-    marginTop: 2,
+    marginTop: verticalScale(2),
   },
   modalEmptyContainer: {
-    paddingVertical: 40,
+    paddingVertical: verticalScale(40),
     alignItems: 'center',
   },
   modalEmptyText: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: '#87553E',
   },
 });

@@ -24,6 +24,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
 import { colors } from '../utils/styles';
+import { scale, verticalScale, moderateScale } from '../utils/responsive';
 
 const OTP_LENGTH = 6;
 const RESEND_TIMER = 30;
@@ -180,45 +181,45 @@ const s = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: verticalScale(40),
   },
   title: {
-    fontSize: 30,
+    fontSize: moderateScale(30),
     fontFamily: 'PlayfairDisplay',
     fontWeight: 'bold',
     color: colors.primaryDark,
-    marginBottom: 8,
+    marginBottom: verticalScale(8),
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: moderateScale(16),
     color: colors.gray500,
     fontFamily: 'Inter',
     textAlign: 'center',
   },
   phone: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
     fontWeight: 'bold',
     color: colors.gray800,
-    marginTop: 4,
+    marginTop: verticalScale(4),
   },
   otpRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 16,
-    marginTop: 8,
-    paddingHorizontal: 8,
+    marginBottom: verticalScale(16),
+    marginTop: verticalScale(8),
+    paddingHorizontal: scale(8),
   },
   otpInput: {
-    width: 48,
-    height: 56,
+    width: scale(48),
+    height: verticalScale(56),
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: moderateScale(12),
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: moderateScale(20),
     fontWeight: 'bold',
     backgroundColor: colors.white,
   },
@@ -233,17 +234,17 @@ const s = StyleSheet.create({
   errorText: {
     color: colors.error,
     textAlign: 'center',
-    marginBottom: 16,
-    fontSize: 14,
+    marginBottom: verticalScale(16),
+    fontSize: moderateScale(14),
   },
   errorSpacer: {
-    height: 16,
-    marginBottom: 16,
+    height: verticalScale(16),
+    marginBottom: verticalScale(16),
   },
   verifyBtn: {
     width: '100%',
-    paddingVertical: 16,
-    borderRadius: 12,
+    paddingVertical: verticalScale(16),
+    borderRadius: moderateScale(12),
     alignItems: 'center',
   },
   verifyBtnActive: {
@@ -255,13 +256,13 @@ const s = StyleSheet.create({
   verifyBtnText: {
     color: colors.white,
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: moderateScale(18),
   },
   resendRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 24,
+    marginTop: verticalScale(24),
   },
   resendLabel: {
     color: colors.gray500,

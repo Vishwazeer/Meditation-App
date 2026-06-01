@@ -8,12 +8,14 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { OnboardingStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
 import apiClient from '../services/api';
+import { scale, verticalScale, moderateScale } from '../utils/responsive';
 
 type NavigationProp = NativeStackNavigationProp<OnboardingStackParamList, 'OnboardingWelcome'>;
 
@@ -76,7 +78,7 @@ const OnboardingWelcome = () => {
 
         <View style={s.centerContent}>
           <View style={s.iconCircle}>
-            <Text style={s.iconText}>{'\u{1F33A}'}</Text>
+            <Text style={s.iconText}>{'🌸'}</Text>
           </View>
 
           <Text style={s.brandLabel}>
@@ -121,15 +123,15 @@ const s = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingVertical: 32,
+    paddingHorizontal: scale(24),
+    paddingVertical: verticalScale(32),
   },
   skipBtn: {
     alignSelf: 'flex-end',
   },
   skipText: {
     color: '#87553E',
-    fontSize: 16,
+    fontSize: moderateScale(16),
   },
   skipTextDisabled: {
     opacity: 0.5,
@@ -140,71 +142,71 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   iconCircle: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
+    width: scale(96),
+    height: scale(96),
+    borderRadius: scale(48),
     backgroundColor: '#ED7624',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 32,
+    marginBottom: verticalScale(32),
   },
   iconText: {
-    fontSize: 36,
+    fontSize: moderateScale(36),
     color: '#FFFFFF',
   },
   brandLabel: {
-    fontSize: 14,
-    letterSpacing: 2,
+    fontSize: moderateScale(14),
+    letterSpacing: moderateScale(2),
     color: '#87553E',
-    marginBottom: 16,
+    marginBottom: verticalScale(16),
     textTransform: 'uppercase',
   },
   headline: {
-    fontSize: 30,
+    fontSize: moderateScale(30),
     fontFamily: 'PlayfairDisplay',
     fontWeight: 'bold',
     color: '#5C250E',
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: verticalScale(16),
   },
   description: {
-    fontSize: 16,
+    fontSize: moderateScale(16),
     color: '#87553E',
     textAlign: 'center',
-    paddingHorizontal: 32,
-    lineHeight: 24,
+    paddingHorizontal: scale(32),
+    lineHeight: moderateScale(24),
   },
   bottomSection: {
-    gap: 12,
+    gap: verticalScale(12),
   },
   getStartedBtn: {
     width: '100%',
-    paddingVertical: 16,
-    borderRadius: 8,
+    paddingVertical: verticalScale(16),
+    borderRadius: moderateScale(8),
     backgroundColor: '#ED7624',
     alignItems: 'center',
   },
   getStartedText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: moderateScale(18),
   },
   dotsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 16,
-    gap: 8,
+    marginTop: verticalScale(16),
+    gap: scale(8),
   },
   dotActive: {
-    width: 32,
-    height: 8,
-    borderRadius: 4,
+    width: scale(32),
+    height: verticalScale(8),
+    borderRadius: moderateScale(4),
     backgroundColor: '#ED7624',
   },
   dotInactive: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: scale(8),
+    height: verticalScale(8),
+    borderRadius: moderateScale(4),
     backgroundColor: 'rgba(240, 127, 46, 0.2)',
   },
 });

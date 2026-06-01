@@ -11,25 +11,28 @@ import EventDetailScreen from '../screens/EventDetailScreen';
 import ProfileMain from '../screens/ProfileMain';
 import PaywallScreen from '../screens/PaywallScreen';
 import SubscriptionScreen from '../screens/SubscriptionScreen';
+import EventsMainScreen from '../screens/events/EventsMainScreen';
 import {
   HomeStackParamList,
   CoursesStackParamList,
   JourneyStackParamList,
   DirectoryStackParamList,
   ProfileStackParamList,
+  EventsStackParamList,
 } from './types';
 
 const Home = createNativeStackNavigator<HomeStackParamList>();
 export const HomeStack = () => (
-  <Home.Navigator screenOptions={{ headerShown: false }}>
+  <Home.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
     <Home.Screen name="HomeMain" component={HomeMain} />
+    <Home.Screen name="EventsMain" component={EventsMainScreen as any} />
     <Home.Screen name="EventDetail" component={EventDetailScreen as React.ComponentType<any>} />
   </Home.Navigator>
 );
 
 const Courses = createNativeStackNavigator<CoursesStackParamList>();
 export const CoursesStack = () => (
-  <Courses.Navigator screenOptions={{ headerShown: false }}>
+  <Courses.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
     <Courses.Screen name="CoursesMain" component={CoursesMain} />
     <Courses.Screen name="CourseDetail" component={CourseDetailScreen} />
     <Courses.Screen name="Lesson" component={LessonScreen as React.ComponentType<any>} />
@@ -38,7 +41,7 @@ export const CoursesStack = () => (
 
 const Journey = createNativeStackNavigator<JourneyStackParamList>();
 export const JourneyStack = () => (
-  <Journey.Navigator screenOptions={{ headerShown: false }}>
+  <Journey.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
     <Journey.Screen name="JourneyMain" component={JourneyMain} />
     <Journey.Screen name="MeditationTimer" component={MeditationTimerScreen} />
   </Journey.Navigator>
@@ -46,16 +49,18 @@ export const JourneyStack = () => (
 
 const Directory = createNativeStackNavigator<DirectoryStackParamList>();
 export const DirectoryStack = () => (
-  <Directory.Navigator screenOptions={{ headerShown: false }}>
+  <Directory.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
     <Directory.Screen name="DirectoryMain" component={DirectoryMain} />
   </Directory.Navigator>
 );
 
 const Profile = createNativeStackNavigator<ProfileStackParamList>();
 export const ProfileStack = () => (
-  <Profile.Navigator screenOptions={{ headerShown: false }}>
+  <Profile.Navigator screenOptions={{ headerShown: false, animation: 'none' }}>
     <Profile.Screen name="ProfileMain" component={ProfileMain} />
     <Profile.Screen name="Paywall" component={PaywallScreen} />
     <Profile.Screen name="Subscription" component={SubscriptionScreen} />
   </Profile.Navigator>
 );
+
+

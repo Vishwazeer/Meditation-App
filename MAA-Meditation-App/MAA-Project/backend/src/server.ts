@@ -77,9 +77,12 @@ app.get('/api/health', healthHandler);
 app.use('/api', routes);
 app.use(errorHandler);
 
+import { startYoutubeSyncJob } from './services/youtube.service';
+
 const server = app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`[Server] Listening on :${PORT} (env=${NODE_ENV})`);
+  startYoutubeSyncJob();
 });
 
 // Graceful shutdown — Fly.io sends SIGTERM, then waits for the process to

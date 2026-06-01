@@ -25,6 +25,7 @@ import { AuthStackParamList } from '../navigation/types';
 import { useAuthStore } from '../store/authStore';
 import { authService } from '../services/auth.service';
 import { colors } from '../utils/styles';
+import { scale, verticalScale, moderateScale } from '../utils/responsive';
 
 type AuthMode = 'phone' | 'email';
 type LoginNavigationProp = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
@@ -173,33 +174,33 @@ const LoginScreen = () => {
 const s = StyleSheet.create({
   flex1: { flex: 1 },
   bgBg: { backgroundColor: colors.background },
-  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24 },
+  scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: scale(24) },
   center: { alignItems: 'center' },
-  headerSection: { marginBottom: 40 },
-  fieldGroup: { marginBottom: 24 },
-  labelSpaced: { marginTop: 16 },
-  toggleRow: { marginTop: 16 },
+  headerSection: { marginBottom: verticalScale(40) },
+  fieldGroup: { marginBottom: verticalScale(24) },
+  labelSpaced: { marginTop: verticalScale(16) },
+  toggleRow: { marginTop: verticalScale(16) },
   btnPrimary: { backgroundColor: colors.primary },
   btnLoading: { backgroundColor: colors.primaryLight },
-  logoEmoji: { fontSize: 36 },
-  logo: { width: 80, height: 80, borderRadius: 40, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
-  title: { fontSize: 30, fontWeight: 'bold', color: colors.primaryDark, marginBottom: 8 },
-  subtitle: { fontSize: 16, color: colors.gray500, textAlign: 'center', paddingHorizontal: 16 },
-  label: { fontSize: 14, fontWeight: '600', color: colors.gray700, marginBottom: 8 },
-  phoneRow: { flexDirection: 'row', borderWidth: 1, borderColor: colors.border, borderRadius: 12, backgroundColor: colors.white, overflow: 'hidden' },
-  codeBox: { paddingHorizontal: 16, paddingVertical: 16, borderRightWidth: 1, borderRightColor: colors.border, backgroundColor: colors.gray50 },
-  codeText: { fontSize: 16, fontWeight: '600', color: colors.gray800 },
-  phoneInput: { flex: 1, paddingHorizontal: 16, paddingVertical: 16, fontSize: 16, color: colors.gray800 },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, backgroundColor: colors.white, paddingHorizontal: 16, paddingVertical: 16, fontSize: 16, color: colors.gray800 },
-  error: { color: colors.error, fontSize: 14, marginBottom: 16 },
-  btn: { width: '100%', paddingVertical: 16, borderRadius: 12, alignItems: 'center' },
-  btnText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
-  toggle: { color: colors.primary, fontWeight: '600', fontSize: 14 },
-  divRow: { flexDirection: 'row', alignItems: 'center', marginTop: 24, marginBottom: 16 },
+  logoEmoji: { fontSize: moderateScale(36) },
+  logo: { width: scale(80), height: scale(80), borderRadius: scale(40), backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center', marginBottom: verticalScale(20) },
+  title: { fontSize: moderateScale(30), fontWeight: 'bold', color: colors.primaryDark, marginBottom: verticalScale(8) },
+  subtitle: { fontSize: moderateScale(16), color: colors.gray500, textAlign: 'center', paddingHorizontal: scale(16) },
+  label: { fontSize: moderateScale(14), fontWeight: '600', color: colors.gray700, marginBottom: verticalScale(8) },
+  phoneRow: { flexDirection: 'row', borderWidth: 1, borderColor: colors.border, borderRadius: moderateScale(12), backgroundColor: colors.white, overflow: 'hidden' },
+  codeBox: { paddingHorizontal: scale(16), paddingVertical: verticalScale(16), borderRightWidth: 1, borderRightColor: colors.border, backgroundColor: colors.gray50 },
+  codeText: { fontSize: moderateScale(16), fontWeight: '600', color: colors.gray800 },
+  phoneInput: { flex: 1, paddingHorizontal: scale(16), paddingVertical: verticalScale(16), fontSize: moderateScale(16), color: colors.gray800 },
+  input: { borderWidth: 1, borderColor: colors.border, borderRadius: moderateScale(12), backgroundColor: colors.white, paddingHorizontal: scale(16), paddingVertical: verticalScale(16), fontSize: moderateScale(16), color: colors.gray800 },
+  error: { color: colors.error, fontSize: moderateScale(14), marginBottom: verticalScale(16) },
+  btn: { width: '100%', paddingVertical: verticalScale(16), borderRadius: moderateScale(12), alignItems: 'center' },
+  btnText: { color: '#fff', fontWeight: 'bold', fontSize: moderateScale(18) },
+  toggle: { color: colors.primary, fontWeight: '600', fontSize: moderateScale(14) },
+  divRow: { flexDirection: 'row', alignItems: 'center', marginTop: verticalScale(24), marginBottom: verticalScale(16) },
   divLine: { flex: 1, height: 1, backgroundColor: colors.gray300 },
-  divText: { marginHorizontal: 12, color: colors.gray400, fontSize: 14 },
-  googleBtn: { width: '100%', paddingVertical: 16, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white },
-  googleText: { color: colors.gray800, fontWeight: 'bold', fontSize: 16 },
+  divText: { marginHorizontal: scale(12), color: colors.gray400, fontSize: moderateScale(14) },
+  googleBtn: { width: '100%', paddingVertical: verticalScale(16), borderRadius: moderateScale(12), alignItems: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.white },
+  googleText: { color: colors.gray800, fontWeight: 'bold', fontSize: moderateScale(16) },
 });
 
 export default LoginScreen;

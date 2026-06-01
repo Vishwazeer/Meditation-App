@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { useAlertStore } from '../../store/alertStore';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive';
 
 // Monkey-patch Alert.alert globally to intercept native platform dialogs
 Alert.alert = (alertTitle, alertMessage, alertButtons) => {
@@ -92,49 +93,49 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
   },
   modalContent: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
+    borderRadius: moderateScale(16),
+    padding: scale(24),
     width: '100%',
-    maxWidth: 340,
+    maxWidth: scale(340),
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.12)',
     elevation: 5,
     shadowColor: '#ED7624',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: verticalScale(4) },
     shadowOpacity: 0.15,
-    shadowRadius: 12,
+    shadowRadius: moderateScale(12),
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
     fontWeight: '700',
     color: '#5C250E',
-    marginBottom: 8,
+    marginBottom: verticalScale(8),
     textAlign: 'center',
   },
   modalSubtitle: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: '#87553E',
-    marginBottom: 24,
-    lineHeight: 20,
+    marginBottom: verticalScale(24),
+    lineHeight: moderateScale(20),
     textAlign: 'center',
   },
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: scale(12),
   },
   buttonColumn: {
     flexDirection: 'column',
-    gap: 8,
+    gap: verticalScale(8),
     width: '100%',
   },
   button: {
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(8),
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: '#87553E',
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
   confirmButton: {
     backgroundColor: '#ED7624',
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
   confirmButtonText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
   destructiveButton: {
     backgroundColor: '#FEF2F2',
@@ -170,6 +171,6 @@ const styles = StyleSheet.create({
   destructiveButtonText: {
     color: '#DC2626',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
 });

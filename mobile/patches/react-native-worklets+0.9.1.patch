@@ -1,0 +1,17 @@
+diff --git a/android/CMakeLists.txt b/android/CMakeLists.txt
+--- a/android/CMakeLists.txt
++++ b/android/CMakeLists.txt
+@@ -39,11 +39,13 @@ target_include_directories(worklets
+ find_package(ReactAndroid REQUIRED CONFIG)
+ find_package(fbjni REQUIRED CONFIG)
+ 
++target_compile_options(worklets PRIVATE -fexceptions -frtti)
++
+ target_link_libraries(worklets
+   ReactAndroid::reactnative
+   ReactAndroid::jsi
+   fbjni::fbjni
+   android
+   log
++  c++_shared
+ )

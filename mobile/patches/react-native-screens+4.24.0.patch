@@ -1,0 +1,19 @@
+diff --git a/android/CMakeLists.txt b/android/CMakeLists.txt
+--- a/android/CMakeLists.txt
++++ b/android/CMakeLists.txt
+@@ -43,13 +43,15 @@ if(${RNS_NEW_ARCH_ENABLED})
+     find_package(fbjni REQUIRED CONFIG)
+     target_link_libraries(rnscreens
+         ReactAndroid::reactnative
+         ReactAndroid::jsi
+         fbjni::fbjni
+         android
++        c++_shared
+     )
+ else()
+     target_link_libraries(rnscreens
+         ReactAndroid::jsi
+         android
++        c++_shared
+     )
+ endif()

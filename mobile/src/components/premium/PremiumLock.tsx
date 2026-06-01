@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive';
 
 interface PremiumLockProps {
   children: React.ReactNode;
@@ -45,7 +46,7 @@ export const PremiumLock = ({
 const s = StyleSheet.create({
   wrapper: {
     overflow: 'hidden',
-    borderRadius: 12,
+    borderRadius: moderateScale(12),
   },
   childrenDimmed: {
     opacity: 0.4,
@@ -53,32 +54,32 @@ const s = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 12,
+    borderRadius: moderateScale(12),
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: scale(16),
   },
   lockCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: scale(48),
+    height: scale(48),
+    borderRadius: moderateScale(24),
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: verticalScale(12),
   },
   lockIcon: {
-    fontSize: 24,
+    fontSize: moderateScale(24),
   },
   upgradeButton: {
     backgroundColor: '#1B4332',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(20),
+    borderRadius: moderateScale(8),
   },
   upgradeText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
 });

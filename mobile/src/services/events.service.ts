@@ -1,4 +1,4 @@
-import { get, post } from './api';
+import { get, post, del } from './api';
 
 export interface Event {
   id: string;
@@ -11,26 +11,30 @@ export interface Event {
   timezone: string;
   thumbnail_url: string | null;
   stream_url: string | null;
-  recording_url: string | null;
+  youtube_video_id: string | null;
+  viewer_count: number;
   category: string;
   is_live: boolean;
   is_premium: boolean;
   max_participants: number | null;
   registration_count: number;
   status: string;
-}
-
-export interface EventRegistration {
-  id: string;
-  event_id: string;
-  user_id: string;
-  status: string;
-  registered_at: string;
+  has_reminder?: boolean;
 }
 
 export const eventsService = {
-  async listEvents(): Promise<Event[]> {
-    const data = await get<any>('/events');
+  async getLiveEvents(): Promise<Event[]> {
+    const data = await get<Event[]>('/events/live');
+    return data || [];
+  },
+
+  async getUpcomingEvents(): Promise<Event[]> {
+    const data = await get<Event[]>('/events/upcoming');
+    return data || [];
+  },
+
+  async getPastEvents(): Promise<Event[]> {
+    const data = await get<Event[]>('/events/past');
     return data || [];
   },
 
@@ -38,24 +42,16 @@ export const eventsService = {
     return get<Event>(`/events/${eventId}`);
   },
 
-  async registerForEvent(eventId: string): Promise<EventRegistration> {
-    return post<EventRegistration>(`/events/${eventId}/register`);
+  async setReminder(eventId: string): Promise<{ message: string }> {
+    return post<{ message: string }>(`/events/${eventId}/reminder`);
   },
 
-  async isRegistered(eventId: string): Promise<boolean> {
-    try {
-      // In a strict REST architecture, fetching the event stream or checking registration
-      // is usually verified on access. We fallback to querying events to see if we're registered.
-      const eventWithReg = await get<any>(`/events/${eventId}`);
-      // Usually backend attaches enrollment or registration status
-      return !!eventWithReg?.registration || !!eventWithReg?.is_registered;
-    } catch {
-      return false;
-    }
+  async deleteReminder(eventId: string): Promise<{ message: string }> {
+    return del<{ message: string }>(`/events/${eventId}/reminder`);
   },
 
-  async getStreamUrl(eventId: string): Promise<string | null> {
-    const data = await get<any>(`/events/${eventId}/stream`);
-    return data?.stream_url || null;
-  },
+  async getViewerCount(eventId: string): Promise<number> {
+    const data = await get<{ viewer_count: number }>(`/events/${eventId}/viewers`);
+    return data?.viewer_count || 0;
+  }
 };

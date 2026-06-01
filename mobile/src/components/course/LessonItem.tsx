@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Lesson } from '../../types/course.types';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive';
 
 interface LessonItemProps {
   lesson: Lesson;
@@ -10,10 +11,10 @@ interface LessonItemProps {
 }
 
 const LESSON_TYPE_ICONS: Record<string, string> = {
-  video: '\u{1F3AC}',
-  audio: '\u{1F3B5}',
-  text: '\u{1F4C4}',
-  exercise: '\u{1F3CB}',
+  video: '🎬',
+  audio: '🎵',
+  text: '📄',
+  exercise: '🏋️',
 };
 
 export const LessonItem = ({
@@ -22,7 +23,7 @@ export const LessonItem = ({
   isCompleted,
   onPress,
 }: LessonItemProps) => {
-  const icon = LESSON_TYPE_ICONS[lesson.lesson_type] || '\u{1F4C4}';
+  const icon = LESSON_TYPE_ICONS[lesson.lesson_type] || '📄';
   const isLocked = !isEnrolled && !lesson.is_preview;
 
   return (
@@ -44,7 +45,7 @@ export const LessonItem = ({
         ]}
       >
         {isCompleted ? (
-          <Text style={s.checkText}>{'\u2713'}</Text>
+          <Text style={s.checkText}>{'✓'}</Text>
         ) : (
           <Text style={s.numberText}>
             {lesson.lesson_number}
@@ -61,18 +62,18 @@ export const LessonItem = ({
           </Text>
         </View>
         <Text style={s.meta}>
-          {lesson.duration_minutes} min {'\u00B7'}{' '}
+          {lesson.duration_minutes} min {'·'}{' '}
           {lesson.lesson_type.charAt(0).toUpperCase() +
             lesson.lesson_type.slice(1)}
-          {lesson.is_preview ? ' \u00B7 Preview' : ''}
+          {lesson.is_preview ? ' · Preview' : ''}
         </Text>
       </View>
 
       {/* Status icon */}
       {isLocked ? (
-        <Text style={s.statusLocked}>{'\u{1F512}'}</Text>
+        <Text style={s.statusLocked}>{'🔒'}</Text>
       ) : (
-        <Text style={s.statusPlay}>{'\u{25B6}'}</Text>
+        <Text style={s.statusPlay}>{'▶️'}</Text>
       )}
     </TouchableOpacity>
   );
@@ -82,8 +83,8 @@ const s = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: scale(16),
+    paddingVertical: verticalScale(12),
     borderBottomWidth: 1,
     borderBottomColor: '#E5E7EB',
   },
@@ -91,12 +92,12 @@ const s = StyleSheet.create({
     opacity: 0.5,
   },
   numberCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: scale(32),
+    height: scale(32),
+    borderRadius: moderateScale(16),
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: scale(12),
   },
   numberCompleted: {
     backgroundColor: '#16A34A',
@@ -106,43 +107,43 @@ const s = StyleSheet.create({
   },
   checkText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: moderateScale(12),
     fontWeight: 'bold',
   },
   numberText: {
     color: '#1B4332',
-    fontSize: 12,
+    fontSize: moderateScale(12),
     fontWeight: 'bold',
   },
   content: {
     flex: 1,
-    marginRight: 12,
+    marginRight: scale(12),
   },
   titleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 2,
+    marginBottom: verticalScale(2),
   },
   typeIcon: {
-    fontSize: 14,
-    marginRight: 4,
+    fontSize: moderateScale(14),
+    marginRight: scale(4),
   },
   lessonTitle: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     fontWeight: '600',
     color: '#1A1A2E',
     flex: 1,
   },
   meta: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: '#6B7280',
   },
   statusLocked: {
-    fontSize: 16,
+    fontSize: moderateScale(16),
     color: '#9CA3AF',
   },
   statusPlay: {
-    fontSize: 16,
+    fontSize: moderateScale(16),
     color: '#40916C',
   },
 });

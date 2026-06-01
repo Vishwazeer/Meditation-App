@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { StreakBadge } from './StreakBadge';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive';
 
 interface HabitLogEntry {
   date: string;
@@ -105,7 +106,7 @@ export const HabitGrid = ({
           ) : (
             <Image source={habitIcon} style={s.habitIconImage} />
           )}
-          <Text style={s.habitName}>{habitName}</Text>
+          <Text style={s.habitName} numberOfLines={1} adjustsFontSizeToFit>{habitName}</Text>
         </View>
 
         <View style={s.headerRight}>
@@ -190,12 +191,12 @@ export const HabitGrid = ({
 const s = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: moderateScale(12),
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.12)',
-    marginHorizontal: 24,
-    marginBottom: 16,
-    padding: 16,
+    marginHorizontal: scale(24),
+    marginBottom: verticalScale(16),
+    padding: scale(16),
     overflow: 'hidden',
   },
   header: {
@@ -207,20 +208,20 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginRight: 12,
+    marginRight: scale(12),
   },
   habitIcon: {
-    fontSize: 18,
-    marginRight: 8,
+    fontSize: moderateScale(18),
+    marginRight: scale(8),
   },
   habitIconImage: {
-    width: 24,
-    height: 24,
-    marginRight: 8,
+    width: scale(24),
+    height: scale(24),
+    marginRight: scale(8),
     resizeMode: 'contain',
   },
   habitName: {
-    fontSize: 16,
+    fontSize: moderateScale(16),
     fontWeight: 'bold',
     color: '#5C250E',
     flexShrink: 1,
@@ -231,31 +232,31 @@ const s = StyleSheet.create({
   },
   addButton: {
     backgroundColor: 'rgba(240, 127, 46, 0.1)',
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    marginLeft: 8,
+    borderRadius: moderateScale(8),
+    paddingVertical: verticalScale(6),
+    paddingHorizontal: scale(10),
+    marginLeft: scale(8),
   },
   addButtonText: {
     color: '#ED7624',
     fontWeight: '600',
-    fontSize: 12,
+    fontSize: moderateScale(12),
   },
   calendarContainer: {
-    marginTop: 16,
-    paddingTop: 16,
+    marginTop: verticalScale(16),
+    paddingTop: verticalScale(16),
     borderTopWidth: 1,
     borderTopColor: 'rgba(240, 127, 46, 0.12)',
   },
   weekdayRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    marginBottom: verticalScale(8),
   },
   weekdayText: {
     flex: 1,
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: '#87553E',
     fontWeight: '600',
   },
@@ -273,8 +274,8 @@ const s = StyleSheet.create({
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 4,
-    borderRadius: 8,
+    marginBottom: verticalScale(4),
+    borderRadius: moderateScale(8),
   },
   cellEmpty: {
     backgroundColor: 'transparent',
@@ -297,7 +298,7 @@ const s = StyleSheet.create({
     fontWeight: 'bold',
   },
   cellText: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
   },
   cellTextCompleted: {
     color: '#FFFFFF',

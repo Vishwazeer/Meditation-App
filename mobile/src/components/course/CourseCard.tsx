@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Course } from '../../types/course.types';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive';
 
 interface CourseCardProps {
   course: Course;
@@ -21,13 +22,13 @@ const DIFFICULTY_TEXT: Record<string, string> = {
 
 // Category-driven visual theme so cards feel distinct even without real images
 const CATEGORY_THEME: Record<string, { bg: string; accent: string; icon: string }> = {
-  meditation: { bg: '#87553E', accent: '#5C250E', icon: '\u{1F9D8}' },
-  yoga:       { bg: '#A64B29', accent: '#D97229', icon: '\u{1F9D8}\u200D\u2640\uFE0F' },
-  pranayama:  { bg: '#5C250E', accent: '#87553E', icon: '\u{1F4A8}' },
-  mindfulness:{ bg: '#C56127', accent: '#ED7624', icon: '\u{1F9E0}' },
-  sleep:      { bg: '#3D1A0D', accent: '#5C250E', icon: '\u{1F319}' },
-  stress:     { bg: '#ED7624', accent: '#F0A16C', icon: '\u{1F338}' },
-  default:    { bg: '#87553E', accent: '#ED7624', icon: '\u{1F54A}' },
+  meditation: { bg: '#87553E', accent: '#5C250E', icon: '🧘' },
+  yoga:       { bg: '#A64B29', accent: '#D97229', icon: '🧘‍♀️' },
+  pranayama:  { bg: '#5C250E', accent: '#87553E', icon: '💨' },
+  mindfulness:{ bg: '#C56127', accent: '#ED7624', icon: '🧠' },
+  sleep:      { bg: '#3D1A0D', accent: '#5C250E', icon: '🌙' },
+  stress:     { bg: '#ED7624', accent: '#F0A16C', icon: '🌸' },
+  default:    { bg: '#87553E', accent: '#ED7624', icon: '🕊️' },
 };
 
 const getCategoryTheme = (category: string | null | undefined) =>
@@ -51,7 +52,7 @@ export const CourseCard = ({ course, onPress }: CourseCardProps) => {
       onPress={() => onPress(course.id)}
       activeOpacity={0.7}
     >
-      {/* Thumbnail \u2014 real image if provided, otherwise category-themed artwork.
+      {/* Thumbnail — real image if provided, otherwise category-themed artwork.
           Badges live INSIDE the thumbnail so they anchor to its corners, not the
           bottom of the whole card. */}
       <View
@@ -124,7 +125,7 @@ export const CourseCard = ({ course, onPress }: CourseCardProps) => {
         <View style={s.footer}>
           <View style={s.enrollRow}>
             <Text style={s.starIcon}>
-              {'\u2B50'}
+              {'⭐'}
             </Text>
             <Text style={s.enrollText}>
               {course.enrollment_count} enrolled
@@ -142,15 +143,15 @@ export const CourseCard = ({ course, onPress }: CourseCardProps) => {
 const s = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: moderateScale(12),
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.12)',
     overflow: 'hidden',
-    marginBottom: 16,
-    marginHorizontal: 24,
+    marginBottom: verticalScale(16),
+    marginHorizontal: scale(24),
   },
   thumbnail: {
-    height: 160,
+    height: verticalScale(160),
     backgroundColor: 'rgba(27, 67, 50, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -161,40 +162,40 @@ const s = StyleSheet.create({
     height: '100%',
   },
   thumbnailEmoji: {
-    fontSize: 44,
+    fontSize: moderateScale(44),
   },
   thumbnailCategory: {
     color: 'rgba(255, 255, 255, 0.85)',
-    fontSize: 11,
+    fontSize: moderateScale(11),
     fontWeight: '700',
-    letterSpacing: 2,
-    marginTop: 8,
+    letterSpacing: moderateScale(2),
+    marginTop: verticalScale(8),
   },
   decorCircleLarge: {
     position: 'absolute',
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: scale(120),
+    height: scale(120),
+    borderRadius: scale(60),
     opacity: 0.15,
-    top: -20,
-    right: -30,
+    top: verticalScale(-20),
+    right: scale(-30),
   },
   decorCircleSmall: {
     position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: scale(60),
+    height: scale(60),
+    borderRadius: scale(30),
     opacity: 0.2,
-    bottom: -10,
-    left: -10,
+    bottom: verticalScale(-10),
+    left: scale(-10),
   },
   badge: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    top: verticalScale(12),
+    right: scale(12),
+    borderRadius: moderateScale(999),
+    paddingHorizontal: scale(10),
+    paddingVertical: verticalScale(4),
   },
   badgePremium: {
     backgroundColor: '#ED7624',
@@ -204,60 +205,60 @@ const s = StyleSheet.create({
   },
   badgeText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: moderateScale(12),
     fontWeight: 'bold',
   },
   durationBadge: {
     position: 'absolute',
-    bottom: 8,
-    right: 8,
+    bottom: verticalScale(8),
+    right: scale(8),
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    borderRadius: moderateScale(999),
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(2),
   },
   durationText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: moderateScale(12),
   },
   body: {
-    padding: 16,
+    padding: scale(16),
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: verticalScale(8),
   },
   difficultyBadge: {
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginRight: 8,
+    borderRadius: moderateScale(999),
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(2),
+    marginRight: scale(8),
   },
   difficultyText: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     fontWeight: '600',
     textTransform: 'capitalize',
   },
   lessonCount: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: '#87553E',
   },
   title: {
-    fontSize: 16,
+    fontSize: moderateScale(16),
     fontWeight: 'bold',
     color: '#5C250E',
-    marginBottom: 4,
+    marginBottom: verticalScale(4),
   },
   instructor: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: '#87553E',
-    marginBottom: 8,
+    marginBottom: verticalScale(8),
   },
   description: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: '#87553E',
-    marginBottom: 8,
+    marginBottom: verticalScale(8),
   },
   footer: {
     flexDirection: 'row',
@@ -269,16 +270,16 @@ const s = StyleSheet.create({
     alignItems: 'center',
   },
   starIcon: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: '#ED7624',
-    marginRight: 4,
+    marginRight: scale(4),
   },
   enrollText: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: '#87553E',
   },
   category: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: '#ED7624',
     fontWeight: '600',
   },

@@ -13,6 +13,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, AccessibilityInfo } from 'react-native';
 import { colors } from '../../utils/styles';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive';
 
 export interface ErrorBannerProps {
   /** Short message shown to the user (1 sentence). */
@@ -60,37 +61,37 @@ const s = StyleSheet.create({
     backgroundColor: '#FEF2F2',
     borderColor: '#FECACA',
     borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    marginHorizontal: 16,
-    marginVertical: 8,
-    gap: 10,
+    borderRadius: moderateScale(8),
+    paddingVertical: verticalScale(10),
+    paddingHorizontal: scale(12),
+    marginHorizontal: scale(16),
+    marginVertical: verticalScale(8),
+    gap: scale(10),
   },
   containerProminent: {
-    paddingVertical: 14,
-    borderRadius: 12,
+    paddingVertical: verticalScale(14),
+    borderRadius: moderateScale(12),
   },
   icon: {
-    fontSize: 16,
+    fontSize: moderateScale(16),
   },
   message: {
     flex: 1,
     color: colors.error,
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: moderateScale(13),
+    lineHeight: moderateScale(18),
   },
   retryButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 6,
+    paddingVertical: verticalScale(6),
+    paddingHorizontal: scale(12),
+    borderRadius: moderateScale(6),
     backgroundColor: colors.error,
   },
   retryText: {
     color: colors.white,
     fontWeight: '700',
-    fontSize: 12,
-    letterSpacing: 0.3,
+    fontSize: moderateScale(12),
+    letterSpacing: scale(0.3),
   },
 });
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive';
 
 interface ContentCardProps {
   id: string;
@@ -91,15 +92,15 @@ const s = StyleSheet.create({
   card: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    marginBottom: 12,
+    borderRadius: moderateScale(12),
+    marginBottom: verticalScale(12),
     borderWidth: 1,
     borderColor: '#E5E7EB',
     overflow: 'hidden',
   },
   thumbnail: {
-    width: 128,
-    height: 96,
+    width: scale(128),
+    height: verticalScale(96),
     backgroundColor: 'rgba(45, 106, 79, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -109,43 +110,43 @@ const s = StyleSheet.create({
     height: '100%',
   },
   thumbnailEmoji: {
-    fontSize: 24,
+    fontSize: moderateScale(24),
   },
   durationBadge: {
     position: 'absolute',
-    bottom: 4,
-    right: 4,
+    bottom: verticalScale(4),
+    right: scale(4),
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    borderRadius: moderateScale(999),
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(2),
   },
   durationText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: moderateScale(12),
     fontWeight: '600',
   },
   proBadge: {
     position: 'absolute',
-    top: 4,
-    left: 4,
+    top: verticalScale(4),
+    left: scale(4),
     backgroundColor: '#40916C',
-    borderRadius: 999,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
+    borderRadius: moderateScale(999),
+    paddingHorizontal: scale(8),
+    paddingVertical: verticalScale(2),
   },
   proText: {
     color: '#FFFFFF',
-    fontSize: 12,
+    fontSize: moderateScale(12),
     fontWeight: 'bold',
   },
   info: {
     flex: 1,
-    padding: 12,
+    padding: scale(12),
     justifyContent: 'space-between',
   },
   title: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     fontWeight: '600',
     color: '#1A1A2E',
   },
@@ -153,18 +154,18 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 8,
+    marginTop: verticalScale(8),
   },
   viewRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   viewText: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: '#6B7280',
   },
   bookmarkIcon: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
   },
   bookmarkActive: {
     color: '#40916C',

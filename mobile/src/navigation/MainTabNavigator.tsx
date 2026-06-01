@@ -21,6 +21,7 @@ export const MainTabNavigator = () => {
       tabBar={renderTabBar}
       screenOptions={{
         headerShown: false,
+        lazy: false,
         tabBarTransparent: true,
         tabBarBackground: () => null,
         tabBarStyle: {

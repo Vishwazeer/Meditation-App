@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Image } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthNavigator } from './AuthNavigator';
 import { MainTabNavigator } from './MainTabNavigator';
 import { OnboardingNavigator } from './OnboardingNavigator';
 import { useAuthStore } from '../store/authStore';
 import { colors } from '../utils/styles';
+import { TAB_ICONS } from '../components/CustomTabBar';
 
 export const RootNavigator = () => {
   const session = useAuthStore((s) => s.session);
@@ -15,7 +16,19 @@ export const RootNavigator = () => {
 
   useEffect(() => {
     const init = async () => {
-      await restoreSession();
+      try {
+        const prefetchTasks = Object.values(TAB_ICONS).map((icon) => {
+          if (typeof icon === 'number') {
+            const uri = Image.resolveAssetSource(icon).uri;
+            return Image.prefetch(uri);
+          }
+          return Promise.resolve();
+        });
+        await Promise.all([restoreSession(), ...prefetchTasks]);
+      } catch (e) {
+        console.warn('Error during initialization:', e);
+        await restoreSession();
+      }
       setIsInitializing(false);
     };
     init();

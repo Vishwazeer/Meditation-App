@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive';
 
 interface StreakBadgeProps {
   count: number;
@@ -26,24 +27,24 @@ const s = StyleSheet.create({
     backgroundColor: 'rgba(240, 127, 46, 0.1)',
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.3)',
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    borderRadius: moderateScale(999),
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(6),
   },
   fireIcon: {
-    width: 16,
-    height: 16,
+    width: scale(16),
+    height: scale(16),
     resizeMode: 'contain',
-    marginRight: 4,
+    marginRight: scale(4),
   },
   count: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     fontWeight: 'bold',
     color: '#ED7624',
   },
   label: {
-    fontSize: 12,
+    fontSize: moderateScale(12),
     color: '#87553E',
-    marginLeft: 4,
+    marginLeft: scale(4),
   },
 });

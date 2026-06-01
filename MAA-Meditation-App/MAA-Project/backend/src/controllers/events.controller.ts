@@ -1,231 +1,216 @@
 /**
  * File: events.controller.ts
  *
- * Description: Manages event endpoints: listing upcoming events, user registration with capacity checks, and stream URL access for registered users.
- *
- * Author: Navnit(Ninjacode911)
+ * Description: Manages event endpoints: live events, upcoming events, reminders, and views.
  */
 
 import { Request, Response } from 'express';
 import { supabase } from '../services/supabase.service';
 import { success, error } from '../utils/apiResponse';
 
-/**
- * GET /api/events
- * List upcoming events ordered by event_date ascending
- */
-export const listEvents = async (req: Request, res: Response): Promise<void> => {
+export const getLiveEvents = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      res.status(401).json(error('UNAUTHORIZED', 'Authentication required', 401));
-      return;
-    }
-
-    const { page = '1', limit = '20' } = req.query;
-
-    const pageNum = Math.max(1, parseInt(page as string, 10) || 1);
-    const limitNum = Math.min(50, Math.max(1, parseInt(limit as string, 10) || 20));
-    const offset = (pageNum - 1) * limitNum;
-
-    const now = new Date().toISOString();
-
-    const { data: events, error: queryError, count } = await supabase
+    const { data: events, error: queryError } = await supabase
       .from('events')
-      .select('*', { count: 'exact' })
-      .gt('event_date', now)
+      .select('*')
+      .eq('is_live', true)
       .neq('status', 'cancelled')
-      .order('event_date', { ascending: true })
-      .range(offset, offset + limitNum - 1);
+      .order('viewer_count', { ascending: false });
 
     if (queryError) {
       res.status(500).json(error('QUERY_FAILED', queryError.message, 500));
       return;
     }
 
-    // Check which events the user is registered for
-    const eventIds = (events ?? []).map((e) => e.id as string);
-    let registrationMap: Record<string, boolean> = {};
+    res.status(200).json(success(events ?? []));
+  } catch (err) {
+    console.error('getLiveEvents error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to fetch live events', 500));
+  }
+};
 
-    if (eventIds.length > 0) {
-      const { data: registrations } = await supabase
-        .from('event_registrations')
-        .select('event_id, status')
+export const getUpcomingEvents = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    const now = new Date().toISOString();
+
+    const { data: events, error: queryError } = await supabase
+      .from('events')
+      .select('*')
+      .eq('status', 'upcoming')
+      .gt('event_date', now)
+      .order('event_date', { ascending: true });
+
+    if (queryError) {
+      res.status(500).json(error('QUERY_FAILED', queryError.message, 500));
+      return;
+    }
+
+    let remindersMap: Record<string, boolean> = {};
+    if (userId && events && events.length > 0) {
+      const eventIds = events.map(e => e.id as string);
+      const { data: reminders } = await supabase
+        .from('event_reminders')
+        .select('event_id')
         .eq('user_id', userId)
-        .in('event_id', eventIds)
-        .eq('status', 'registered');
+        .in('event_id', eventIds);
 
-      if (registrations) {
-        registrationMap = registrations.reduce<Record<string, boolean>>((acc, r) => {
+      if (reminders) {
+        remindersMap = reminders.reduce<Record<string, boolean>>((acc, r) => {
           acc[r.event_id] = true;
           return acc;
         }, {});
       }
     }
 
-    const eventsWithRegistration = (events ?? []).map((event) => ({
+    const upcomingWithReminders = (events ?? []).map((event) => ({
       ...event,
-      is_registered: registrationMap[event.id] ?? false,
+      has_reminder: remindersMap[event.id] ?? false,
     }));
 
-    res.status(200).json(
-      success(eventsWithRegistration, {
-        page: pageNum,
-        limit: limitNum,
-        total: count ?? 0,
-        totalPages: count ? Math.ceil(count / limitNum) : 0,
-      })
-    );
+    res.status(200).json(success(upcomingWithReminders));
   } catch (err) {
-    console.error('listEvents error:', err);
-    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to fetch events', 500));
+    console.error('getUpcomingEvents error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to fetch upcoming events', 500));
   }
 };
 
-/**
- * POST /api/events/:id/register
- * Register the authenticated user for an event
- */
-export const registerForEvent = async (req: Request, res: Response): Promise<void> => {
+export const getPastEvents = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.user?.id;
+    const now = new Date().toISOString();
 
-    if (!userId) {
-      res.status(401).json(error('UNAUTHORIZED', 'Authentication required', 401));
+    const { data: events, error: queryError } = await supabase
+      .from('events')
+      .select('*')
+      // .eq('status', 'upcoming') - Assuming past events could have any status or maybe 'completed', let's just use date
+      .lt('event_date', now)
+      .order('event_date', { ascending: false });
+
+    if (queryError) {
+      res.status(500).json(error('QUERY_FAILED', queryError.message, 500));
       return;
     }
 
-    const { id: eventId } = req.params;
+    res.status(200).json(success(events ?? []));
+  } catch (err) {
+    console.error('getPastEvents error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to fetch past events', 500));
+  }
+};
 
-    // Verify event exists and is upcoming
-    const { data: event, error: eventError } = await supabase
+export const getEventById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id: eventId } = req.params;
+    const userId = req.user?.id;
+
+    const { data: event, error: queryError } = await supabase
       .from('events')
-      .select('id, status, max_participants, registration_count')
+      .select('*')
       .eq('id', eventId)
       .single();
 
-    if (eventError || !event) {
+    if (queryError || !event) {
       res.status(404).json(error('NOT_FOUND', 'Event not found', 404));
       return;
     }
 
-    if (event.status === 'cancelled') {
-      res.status(400).json(error('EVENT_CANCELLED', 'This event has been cancelled', 400));
-      return;
+    let hasReminder = false;
+    if (userId) {
+      const { data: reminder } = await supabase
+        .from('event_reminders')
+        .select('id')
+        .eq('event_id', eventId)
+        .eq('user_id', userId)
+        .single();
+      hasReminder = !!reminder;
     }
 
-    if (event.status === 'completed') {
-      res.status(400).json(error('EVENT_COMPLETED', 'This event has already ended', 400));
-      return;
-    }
-
-    // Check capacity
-    if (event.max_participants && event.registration_count >= event.max_participants) {
-      res.status(400).json(error('EVENT_FULL', 'Event has reached maximum capacity', 400));
-      return;
-    }
-
-    // Check if already registered
-    const { data: existing } = await supabase
-      .from('event_registrations')
-      .select('id')
-      .eq('event_id', eventId)
-      .eq('user_id', userId)
-      .single();
-
-    if (existing) {
-      res.status(200).json(success(existing));
-      return;
-    }
-
-    // Insert new registration
-    const { data: registration, error: regError } = await supabase
-      .from('event_registrations')
-      .insert({
-        event_id: eventId,
-        user_id: userId,
-        status: 'registered',
-        registered_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
-
-    if (regError) {
-      res.status(500).json(error('REGISTRATION_FAILED', regError.message, 500));
-      return;
-    }
-
-    // Atomically increment registration_count
-    await supabase.rpc('increment_counter', {
-      p_table: 'events',
-      p_column: 'registration_count',
-      p_id: eventId,
-      p_delta: 1
-    });
-
-    res.status(201).json(success(registration));
+    res.status(200).json(success({ ...event, has_reminder: hasReminder }));
   } catch (err) {
-    console.error('registerForEvent error:', err);
-    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to register for event', 500));
+    console.error('getEventById error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to fetch event', 500));
   }
 };
 
-/**
- * GET /api/events/:id/stream
- * Get the stream URL for a registered event
- */
+export const setReminder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json(error('UNAUTHORIZED', 'Authentication required', 401));
+      return;
+    }
+    const { id: eventId } = req.params;
+
+    const { error: insertError } = await supabase
+      .from('event_reminders')
+      .insert({ event_id: eventId, user_id: userId });
+
+    if (insertError && insertError.code !== '23505') { // Ignore unique constraint violation
+      res.status(500).json(error('REMINDER_FAILED', insertError.message, 500));
+      return;
+    }
+
+    res.status(201).json(success({ message: 'Reminder set' }));
+  } catch (err) {
+    console.error('setReminder error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to set reminder', 500));
+  }
+};
+
+export const deleteReminder = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json(error('UNAUTHORIZED', 'Authentication required', 401));
+      return;
+    }
+    const { id: eventId } = req.params;
+
+    const { error: delError } = await supabase
+      .from('event_reminders')
+      .delete()
+      .eq('event_id', eventId)
+      .eq('user_id', userId);
+
+    if (delError) {
+      res.status(500).json(error('DELETE_FAILED', delError.message, 500));
+      return;
+    }
+
+    res.status(200).json(success({ message: 'Reminder removed' }));
+  } catch (err) {
+    console.error('deleteReminder error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to remove reminder', 500));
+  }
+};
+
+export const getEventViewers = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id: eventId } = req.params;
+
+    const { data: event, error: queryError } = await supabase
+      .from('events')
+      .select('viewer_count')
+      .eq('id', eventId)
+      .single();
+
+    if (queryError || !event) {
+      res.status(404).json(error('NOT_FOUND', 'Event not found', 404));
+      return;
+    }
+
+    res.status(200).json(success({ viewer_count: event.viewer_count }));
+  } catch (err) {
+    console.error('getEventViewers error:', err);
+    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to get viewers', 500));
+  }
+};
+
+// Legacy endpoints for backward compatibility
+export const listEvents = getUpcomingEvents;
+export const registerForEvent = setReminder;
 export const getStreamUrl = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      res.status(401).json(error('UNAUTHORIZED', 'Authentication required', 401));
-      return;
-    }
-
-    const { id: eventId } = req.params;
-
-    // Verify user is registered for the event
-    const { data: registration, error: regError } = await supabase
-      .from('event_registrations')
-      .select('id, status')
-      .eq('event_id', eventId)
-      .eq('user_id', userId)
-      .eq('status', 'registered')
-      .single();
-
-    if (regError || !registration) {
-      res.status(403).json(
-        error('NOT_REGISTERED', 'You must be registered for this event to access the stream', 403)
-      );
-      return;
-    }
-
-    // Fetch stream URL
-    const { data: event, error: eventError } = await supabase
-      .from('events')
-      .select('id, title, stream_url, recording_url, is_live, status')
-      .eq('id', eventId)
-      .single();
-
-    if (eventError || !event) {
-      res.status(404).json(error('NOT_FOUND', 'Event not found', 404));
-      return;
-    }
-
-    res.status(200).json(
-      success({
-        event_id: event.id,
-        title: event.title,
-        stream_url: event.stream_url ?? null,
-        recording_url: event.recording_url ?? null,
-        is_live: event.is_live,
-        status: event.status,
-      })
-    );
-  } catch (err) {
-    console.error('getStreamUrl error:', err);
-    res.status(500).json(error('INTERNAL_SERVER_ERROR', 'Failed to get stream URL', 500));
-  }
+  const { id: eventId } = req.params;
+  const { data: event } = await supabase.from('events').select('stream_url').eq('id', eventId).single();
+  res.status(200).json(success({ stream_url: event?.stream_url }));
 };

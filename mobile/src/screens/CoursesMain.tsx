@@ -19,6 +19,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { scale, verticalScale, moderateScale } from '../utils/responsive';
 
 interface CourseItem {
   id: string;
@@ -141,32 +142,32 @@ const s = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: verticalScale(40),
   },
   titleWrap: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingHorizontal: scale(24),
+    paddingTop: verticalScale(16),
+    paddingBottom: verticalScale(16),
   },
   pageTitle: {
-    fontSize: 24,
+    fontSize: moderateScale(24),
     fontWeight: 'bold',
     color: '#5C250E',
   },
   pageSubtitle: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: '#87553E',
-    marginTop: 4,
+    marginTop: verticalScale(4),
   },
   courseCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
+    borderRadius: moderateScale(12),
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.12)',
     overflow: 'hidden',
-    marginHorizontal: 24,
-    marginTop: 8,
-    marginBottom: 12,
+    marginHorizontal: scale(24),
+    marginTop: verticalScale(8),
+    marginBottom: verticalScale(12),
     elevation: 2,
     shadowColor: '#ED7624',
     shadowOffset: { width: 0, height: 2 },
@@ -178,7 +179,7 @@ const s = StyleSheet.create({
     opacity: 0.9,
   },
   courseArtwork: {
-    height: 160,
+    height: verticalScale(160),
     overflow: 'hidden',
     backgroundColor: '#87553E',
   },
@@ -188,35 +189,35 @@ const s = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    top: 12,
-    right: 12,
+    top: verticalScale(12),
+    right: scale(12),
     backgroundColor: 'rgba(92, 37, 14, 0.75)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: scale(10),
+    paddingVertical: verticalScale(4),
+    borderRadius: moderateScale(8),
   },
   badgeText: {
     color: '#FFFFFF',
-    fontSize: 11,
+    fontSize: moderateScale(11),
     fontWeight: 'bold',
   },
   courseBody: {
-    padding: 16,
+    padding: scale(16),
   },
   courseTitle: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
     fontWeight: 'bold',
     color: '#5C250E',
-    marginBottom: 6,
+    marginBottom: verticalScale(6),
   },
   courseDescription: {
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: moderateScale(14),
+    lineHeight: moderateScale(20),
     color: '#87553E',
-    marginBottom: 12,
+    marginBottom: verticalScale(12),
   },
   courseAction: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     fontWeight: '700',
     color: '#ED7624',
   },

@@ -2,9 +2,7 @@
  * File: EventDetailScreen.tsx
  *
  * Description: Detailed view of a single event showing description, schedule,
- * location, speaker info, and RSVP/registration actions.
- *
- * Author: Navnit(Ninjacode911)
+ * location, speaker info, and an embedded YouTube player for live events.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -19,7 +17,10 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import { eventsService, Event } from '../services/events.service';
+import { scale, verticalScale, moderateScale } from '../utils/responsive';
+import { colors } from '../utils/styles';
 
 type Props = NativeStackScreenProps<{ EventDetail: { eventId: string } }, 'EventDetail'>;
 
@@ -27,17 +28,13 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
   const { eventId } = route.params;
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [registering, setRegistering] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [togglingReminder, setTogglingReminder] = useState(false);
 
   const loadEvent = useCallback(async () => {
     try {
-      const [eventData, registered] = await Promise.all([
-        eventsService.getEvent(eventId),
-        eventsService.isRegistered(eventId),
-      ]);
+      const eventData = await eventsService.getEvent(eventId);
       setEvent(eventData);
-      setIsRegistered(registered);
     } catch {
       Alert.alert('Error', 'Failed to load event details');
     } finally {
@@ -49,33 +46,33 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
     loadEvent();
   }, [loadEvent]);
 
-  const handleRegister = async () => {
-    setRegistering(true);
+  const handleToggleReminder = async () => {
+    if (!event) return;
+    setTogglingReminder(true);
     try {
-      await eventsService.registerForEvent(eventId);
-      setIsRegistered(true);
-      Alert.alert('Success', 'You are registered for this event!');
+      if (event.has_reminder) {
+        await eventsService.deleteReminder(eventId);
+        setEvent({ ...event, has_reminder: false });
+        Alert.alert('Success', 'Reminder removed.');
+      } else {
+        await eventsService.setReminder(eventId);
+        setEvent({ ...event, has_reminder: true });
+        Alert.alert('Success', 'Reminder set!');
+      }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Registration failed';
+      const message = err instanceof Error ? err.message : 'Action failed';
       Alert.alert('Error', message);
     } finally {
-      setRegistering(false);
+      setTogglingReminder(false);
     }
   };
 
-  const handleJoinLive = async () => {
-    try {
-      const streamUrl = await eventsService.getStreamUrl(eventId);
-      if (streamUrl) {
-        Alert.alert('Live Stream', 'Stream URL: ' + streamUrl);
-      } else {
-        Alert.alert('Not Available', 'Stream is not yet available');
-      }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Cannot access stream';
-      Alert.alert('Error', message);
+  const onStateChange = useCallback((state: string) => {
+    if (state === 'ended') {
+      setPlaying(false);
+      Alert.alert('Stream Ended', 'The live stream has ended.');
     }
-  };
+  }, []);
 
   const formatDate = (dateStr: string): string => {
     const date = new Date(dateStr);
@@ -92,15 +89,15 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
   if (loading) {
     return (
       <SafeAreaView style={s.loadingContainer}>
-        <ActivityIndicator size="large" color="#1B4332" />
+        <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
     );
   }
 
   if (!event) {
     return (
-      <SafeAreaView style={s.emptyContainer}>
-        <Text style={s.emptyText}>Event not found</Text>
+      <SafeAreaView style={s.errorContainer}>
+        <Text style={s.errorText}>Event not found</Text>
       </SafeAreaView>
     );
   }
@@ -109,39 +106,55 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
     <SafeAreaView style={s.container} edges={['top']}>
       <ScrollView style={s.flex1} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={s.headerRow}>
+        <View style={s.header}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={s.backButton}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
           >
-            <Text style={s.backButtonText}>{'\u{2190}'}</Text>
+            <Text style={s.backButtonText}>{"\u{2190}"}</Text>
           </TouchableOpacity>
           <Text style={s.headerTitle} numberOfLines={1}>
             Event Details
           </Text>
         </View>
 
-        {/* Hero */}
-        <View style={s.hero}>
-          {event.is_live && (
-            <View style={s.liveBadge}>
-              <Text style={s.liveBadgeText}>LIVE</Text>
-            </View>
-          )}
-          <Text style={s.heroIcon}>{'\u{1F3B5}'}</Text>
-        </View>
+        {/* Video Player or Hero */}
+        {event.is_live && event.youtube_video_id ? (
+          <View style={s.videoContainer}>
+            <YoutubePlayer
+              height={verticalScale(220)}
+              play={playing}
+              videoId={event.youtube_video_id}
+              onChangeState={onStateChange}
+            />
+          </View>
+        ) : (
+          <View style={s.heroPlaceholder}>
+             <Text style={s.heroIcon}>{"\u{1F3B5}"}</Text>
+          </View>
+        )}
 
         {/* Event Info */}
         <View style={s.infoSection}>
+          <View style={s.badgesRow}>
+            <View style={s.categoryBadge}>
+               <Text style={s.categoryBadgeText}>{event.category}</Text>
+            </View>
+            {event.is_live && (
+              <View style={s.liveBadge}>
+                <View style={s.liveDot} />
+                <Text style={s.liveBadgeText}>LIVE NOW</Text>
+              </View>
+            )}
+          </View>
+          
           <Text style={s.eventTitle}>
             {event.title}
           </Text>
 
-          <View style={s.instructorRow}>
+          <View style={s.instructorCard}>
             <View style={s.instructorAvatar}>
-              <Text style={s.instructorAvatarIcon}>{'\u{1F9D1}'}</Text>
+              <Text style={s.instructorAvatarIcon}>{"\u{1F9D1}"}</Text>
             </View>
             <View>
               <Text style={s.instructorName}>
@@ -152,268 +165,301 @@ const EventDetailScreen = ({ route, navigation }: Props) => {
           </View>
 
           {/* Details */}
-          <View style={s.detailsSection}>
+          <View style={s.detailsCard}>
             <View style={s.detailRow}>
-              <Text style={s.detailIcon}>{'\u{1F4C5}'}</Text>
+              <Text style={s.detailIcon}>{"\u{1F4C5}"}</Text>
               <Text style={s.detailText}>
                 {formatDate(event.event_date)}
               </Text>
             </View>
 
-            <View style={[s.detailRow, s.detailRowSpaced]}>
-              <Text style={s.detailIcon}>{'\u{23F1}'}</Text>
+            <View style={s.detailRow}>
+              <Text style={s.detailIcon}>{"\u{23F1}"}</Text>
               <Text style={s.detailText}>
                 {event.duration_minutes} minutes
               </Text>
             </View>
 
-            <View style={[s.detailRow, s.detailRowSpaced]}>
-              <Text style={s.detailIcon}>{'\u{1F465}'}</Text>
+            <View style={s.detailRow}>
+              <Text style={s.detailIcon}>{"\u{1F465}"}</Text>
               <Text style={s.detailText}>
-                {event.registration_count} registered
-                {event.max_participants
-                  ? ` / ${event.max_participants} spots`
-                  : ''}
+                {event.viewer_count || 0} {event.is_live ? 'watching now' : 'interested'}
               </Text>
             </View>
-
-            <View style={[s.detailRow, s.detailRowSpaced]}>
-              <Text style={s.detailIcon}>{'\u{1F3F7}'}</Text>
-              <View style={s.categoryBadge}>
-                <Text style={s.categoryBadgeText}>
-                  {event.category}
-                </Text>
-              </View>
-              {event.is_premium && (
+            
+            {event.is_premium && (
+              <View style={s.premiumRow}>
+                <Text style={s.detailIcon}>{"\u{1F3F7}"}</Text>
                 <View style={s.premiumBadge}>
                   <Text style={s.premiumBadgeText}>Premium</Text>
                 </View>
-              )}
-            </View>
+              </View>
+            )}
           </View>
 
           {/* Description */}
-          {event.description && (
+          {event.description ? (
             <View style={s.descriptionSection}>
               <Text style={s.descriptionTitle}>
                 About this event
               </Text>
-              <Text style={s.descriptionBody}>
+              <Text style={s.descriptionText}>
                 {event.description}
               </Text>
             </View>
-          )}
+          ) : null}
         </View>
 
-        <View style={s.footerSpacer} />
+        <View style={s.bottomSpacer} />
       </ScrollView>
 
       {/* Sticky Footer */}
-      <View style={s.stickyFooter}>
-        {event.is_live && isRegistered ? (
-          <TouchableOpacity
-            style={s.liveStreamButton}
-            onPress={handleJoinLive}
-          >
-            <Text style={s.liveStreamButtonText}>Join Live Stream</Text>
-          </TouchableOpacity>
-        ) : isRegistered ? (
-          <View style={s.registeredBadge}>
-            <Text style={s.registeredBadgeText}>
-              {'\u{2713}'} Registered
-            </Text>
-          </View>
-        ) : (
+      {!event.is_live && (
+        <View style={s.footer}>
           <TouchableOpacity
             style={[
-              s.registerButton,
-              registering ? s.registerButtonDisabled : null,
+              s.reminderBtn,
+              event.has_reminder ? s.reminderBtnActive : s.reminderBtnInactive,
+              togglingReminder && s.reminderBtnDisabled
             ]}
-            onPress={handleRegister}
-            disabled={registering}
+            onPress={handleToggleReminder}
+            disabled={togglingReminder}
           >
-            {registering ? (
-              <ActivityIndicator color="white" />
+            {togglingReminder ? (
+              <ActivityIndicator color={event.has_reminder ? colors.primary : '#FFFFFF'} />
             ) : (
-              <Text style={s.registerButtonText}>Register Now</Text>
+              <Text
+                style={[
+                  s.reminderBtnText,
+                  event.has_reminder ? s.reminderBtnTextActive : s.reminderBtnTextInactive
+                ]}
+              >
+                {event.has_reminder ? 'Reminder Set \u{2713}' : 'Set Reminder'}
+              </Text>
             )}
           </TouchableOpacity>
-        )}
-      </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 };
 
-export default EventDetailScreen;
-
 const s = StyleSheet.create({
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#FAFAF5',
+    backgroundColor: '#F9FAFB',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  emptyContainer: {
+  errorContainer: {
     flex: 1,
-    backgroundColor: '#FAFAF5',
+    backgroundColor: '#F9FAFB',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
   },
-  emptyText: {
+  errorText: {
     color: '#6B7280',
+    fontSize: moderateScale(16),
   },
   container: {
     flex: 1,
-    backgroundColor: '#FAFAF5',
+    backgroundColor: '#F9FAFB',
   },
   flex1: {
     flex: 1,
   },
-  headerRow: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
+  header: {
+    paddingHorizontal: scale(16),
+    paddingTop: verticalScale(16),
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingBottom: verticalScale(16),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
+    zIndex: 10,
   },
   backButton: {
-    marginRight: 12,
+    marginRight: scale(12),
+    padding: scale(8),
   },
   backButtonText: {
-    fontSize: 24,
-    lineHeight: 26,
-    color: '#1B4332',
-    textAlign: 'center',
-    includeFontPadding: false,
-    marginTop: -2,
+    fontSize: moderateScale(24),
+    color: colors.primary,
+    fontWeight: 'bold',
+    marginTop: verticalScale(-4),
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A2E',
+    fontSize: moderateScale(18),
+    fontWeight: 'bold',
+    color: '#111827',
     flex: 1,
   },
-  hero: {
-    marginHorizontal: 16,
-    marginTop: 16,
-    height: 192,
-    backgroundColor: '#1B4332',
-    borderRadius: 12,
+  videoContainer: {
+    width: '100%',
+    backgroundColor: '#000000',
+    aspectRatio: 16 / 9,
+  },
+  heroPlaceholder: {
+    marginHorizontal: scale(16),
+    marginTop: verticalScale(16),
+    height: verticalScale(192),
+    backgroundColor: colors.primary,
+    borderRadius: moderateScale(12),
     alignItems: 'center',
     justifyContent: 'center',
   },
+  heroIcon: {
+    fontSize: moderateScale(36),
+  },
+  infoSection: {
+    paddingHorizontal: scale(16),
+    marginTop: verticalScale(16),
+  },
+  badgesRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: verticalScale(8),
+  },
+  categoryBadge: {
+    backgroundColor: 'rgba(27,67,50,0.2)',
+    borderRadius: moderateScale(9999),
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(4),
+  },
+  categoryBadgeText: {
+    color: colors.primary,
+    fontWeight: '600',
+    textTransform: 'capitalize',
+    fontSize: moderateScale(14),
+  },
   liveBadge: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
     backgroundColor: '#DC2626',
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(4),
+    borderRadius: moderateScale(9999),
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  liveDot: {
+    width: scale(8),
+    height: scale(8),
+    borderRadius: moderateScale(4),
+    backgroundColor: '#FFFFFF',
+    marginRight: scale(8),
   },
   liveBadgeText: {
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  heroIcon: {
-    fontSize: 36,
-  },
-  infoSection: {
-    paddingHorizontal: 16,
-    marginTop: 16,
+    fontSize: moderateScale(12),
+    fontWeight: 'bold',
+    letterSpacing: scale(1),
   },
   eventTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1A1A2E',
+    fontSize: moderateScale(24),
+    fontWeight: 'bold',
+    color: '#111827',
   },
-  instructorRow: {
+  instructorCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: verticalScale(12),
+    backgroundColor: '#FFFFFF',
+    padding: scale(12),
+    borderRadius: moderateScale(12),
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   instructorAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(45,106,79,0.3)',
+    width: scale(40),
+    height: scale(40),
+    borderRadius: moderateScale(20),
+    backgroundColor: 'rgba(27,67,50,0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: scale(12),
   },
   instructorAvatarIcon: {
-    fontSize: 18,
+    fontSize: moderateScale(18),
   },
   instructorName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1A1A2E',
+    fontSize: moderateScale(16),
+    fontWeight: 'bold',
+    color: '#111827',
   },
   instructorLabel: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: '#6B7280',
   },
-  detailsSection: {
-    marginTop: 24,
+  detailsCard: {
+    marginTop: verticalScale(24),
+    backgroundColor: '#FFFFFF',
+    padding: scale(16),
+    borderRadius: moderateScale(12),
+    borderWidth: 1,
+    borderColor: '#F3F4F6',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  detailRowSpaced: {
-    marginTop: 8,
+    marginBottom: verticalScale(16),
   },
   detailIcon: {
-    fontSize: 18,
-    marginRight: 12,
+    fontSize: moderateScale(18),
+    marginRight: scale(12),
   },
   detailText: {
-    fontSize: 16,
-    color: '#1A1A2E',
+    fontSize: moderateScale(16),
+    color: '#111827',
   },
-  categoryBadge: {
-    backgroundColor: 'rgba(64,145,108,0.2)',
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-  },
-  categoryBadgeText: {
-    color: '#40916C',
-    fontSize: 14,
-    fontWeight: '600',
-    textTransform: 'capitalize',
+  premiumRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   premiumBadge: {
     backgroundColor: 'rgba(27,67,50,0.1)',
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    marginLeft: 8,
+    paddingHorizontal: scale(12),
+    paddingVertical: verticalScale(4),
+    borderRadius: moderateScale(9999),
   },
   premiumBadgeText: {
-    color: '#1B4332',
-    fontSize: 14,
+    color: colors.primary,
     fontWeight: '600',
+    fontSize: moderateScale(14),
   },
   descriptionSection: {
-    marginTop: 24,
+    marginTop: verticalScale(24),
+    marginBottom: verticalScale(32),
   },
   descriptionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A2E',
-    marginBottom: 8,
+    fontSize: moderateScale(18),
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: verticalScale(8),
   },
-  descriptionBody: {
-    fontSize: 16,
-    color: '#6B7280',
-    lineHeight: 24,
+  descriptionText: {
+    fontSize: moderateScale(16),
+    color: '#4B5563',
+    lineHeight: moderateScale(24),
   },
-  footerSpacer: {
-    height: 96,
+  bottomSpacer: {
+    height: verticalScale(96),
   },
-  stickyFooter: {
+  footer: {
     position: 'absolute',
     bottom: 0,
     left: 0,
@@ -421,47 +467,42 @@ const s = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E5E7EB',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 32,
+    paddingHorizontal: scale(16),
+    paddingTop: verticalScale(16),
+    paddingBottom: verticalScale(32),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 10,
   },
-  liveStreamButton: {
+  reminderBtn: {
     width: '100%',
-    paddingVertical: 16,
-    borderRadius: 8,
-    backgroundColor: '#DC2626',
+    paddingVertical: verticalScale(16),
+    borderRadius: moderateScale(12),
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.primary,
   },
-  liveStreamButtonText: {
+  reminderBtnActive: {
+    backgroundColor: '#FFFFFF',
+  },
+  reminderBtnInactive: {
+    backgroundColor: colors.primary,
+  },
+  reminderBtnDisabled: {
+    opacity: 0.7,
+  },
+  reminderBtnText: {
+    fontWeight: 'bold',
+    fontSize: moderateScale(18),
+  },
+  reminderBtnTextActive: {
+    color: colors.primary,
+  },
+  reminderBtnTextInactive: {
     color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 18,
-  },
-  registeredBadge: {
-    width: '100%',
-    paddingVertical: 16,
-    borderRadius: 8,
-    backgroundColor: 'rgba(64,145,108,0.2)',
-    alignItems: 'center',
-  },
-  registeredBadgeText: {
-    color: '#40916C',
-    fontWeight: '700',
-    fontSize: 18,
-  },
-  registerButton: {
-    width: '100%',
-    paddingVertical: 16,
-    borderRadius: 8,
-    backgroundColor: '#1B4332',
-    alignItems: 'center',
-  },
-  registerButtonDisabled: {
-    backgroundColor: '#2D6A4F',
-  },
-  registerButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
-    fontSize: 18,
   },
 });
+
+export default EventDetailScreen;

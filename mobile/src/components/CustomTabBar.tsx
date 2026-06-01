@@ -9,8 +9,9 @@ import {
 } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scale, verticalScale, moderateScale } from '../utils/responsive';
 
-const TAB_ICONS: Record<string, ImageSourcePropType> = {
+export const TAB_ICONS: Record<string, ImageSourcePropType> = {
   Journey: require('../assets/icons/New folder/My journey.png'),
   Courses: require('../assets/icons/New folder/Courses.png'),
   Home: require('../assets/icons/New folder/Home.png'),
@@ -26,7 +27,7 @@ export const CustomTabBar = ({
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[s.container, { bottom: Math.max(insets.bottom, 10) }]}>
+    <View style={[s.container, { bottom: Math.max(insets.bottom, verticalScale(10)) }]}>
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
         const label =
@@ -88,6 +89,8 @@ export const CustomTabBar = ({
                 s.label,
                 isFocused ? s.labelFocused : s.labelUnfocused,
               ]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
             >
               {label as string}
             </Text>
@@ -101,15 +104,15 @@ export const CustomTabBar = ({
 const s = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: 12,
-    right: 12,
+    left: scale(12),
+    right: scale(12),
     flexDirection: 'row',
     alignItems: 'center',
-    height: 64,
+    height: verticalScale(64),
     backgroundColor: '#FFF9F5',
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-    borderRadius: 18,
+    paddingVertical: verticalScale(7),
+    paddingHorizontal: scale(10),
+    borderRadius: moderateScale(18),
     borderWidth: 1,
     borderColor: 'rgba(240, 127, 46, 0.12)',
     shadowColor: '#7A3E1E',
@@ -122,31 +125,37 @@ const s = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 50,
+    minHeight: verticalScale(50),
   },
 
   centerIcon: {
-    width: 42,
-    height: 42,
+    width: scale(42),
+    height: scale(42),
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 2,
+    marginBottom: verticalScale(2),
   },
   centerIconImage: {
-    width: 42,
-    height: 42,
+    width: scale(42),
+    height: scale(42),
+    minWidth: 42,
+    minHeight: 42,
     resizeMode: 'contain',
   },
   iconImage: {
-    width: 28,
-    height: 28,
-    borderRadius: 8,
+    width: scale(28),
+    height: scale(28),
+    minWidth: 28,
+    minHeight: 28,
+    borderRadius: moderateScale(8),
     resizeMode: 'contain',
   },
   iconImageBigger: {
-    width: 42,
-    height: 42,
-    borderRadius: 8,
+    width: scale(42),
+    height: scale(42),
+    minWidth: 42,
+    minHeight: 42,
+    borderRadius: moderateScale(8),
     resizeMode: 'contain',
   },
   iconFocused: {
@@ -156,8 +165,8 @@ const s = StyleSheet.create({
     opacity: 0.55,
   },
   label: {
-    fontSize: 10,
-    marginTop: 2,
+    fontSize: moderateScale(10),
+    marginTop: verticalScale(2),
   },
   labelFocused: {
     color: '#ED7624',

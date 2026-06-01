@@ -11,6 +11,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { API_BASE_URL } from '@env';
 import { supabase } from './supabase';
+import { Platform } from 'react-native';
 
 // ---------------------------------------------------------------------------
 // Base URL is read from mobile/.env (see mobile/.env.example for guidance).
@@ -53,19 +54,29 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
+let currentToken: string | null = null;
+
+// Listen to auth state changes to keep the token in memory, 
+// avoiding async storage hits on every API request.
+supabase.auth.onAuthStateChange((_event, session) => {
+  currentToken = session?.access_token || null;
+});
+
 // ---------------------------------------------------------------------------
 // Request interceptor — attach Supabase JWT to every request
 // ---------------------------------------------------------------------------
 apiClient.interceptors.request.use(
   async (config) => {
-    const { data } = await supabase.auth.getSession();
-    const token = data.session?.access_token;
-
-    if (token) {
-      config.headers = config.headers ?? {};
-      config.headers.Authorization = `Bearer ${token}`;
+    // If the token hasn't been cached yet, fall back to checking storage
+    if (!currentToken) {
+      const { data } = await supabase.auth.getSession();
+      currentToken = data.session?.access_token || null;
     }
 
+    if (currentToken) {
+      config.headers = config.headers ?? {};
+      config.headers.Authorization = `Bearer ${currentToken}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)

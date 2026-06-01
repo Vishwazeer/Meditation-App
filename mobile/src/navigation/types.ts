@@ -13,6 +13,7 @@ export type OnboardingStackParamList = {
 
 export type HomeStackParamList = {
   HomeMain: undefined;
+  EventsMain: { initialTab?: 'live' | 'upcoming' | 'past' } | undefined;
   EventDetail: { eventId: string };
 };
 
@@ -37,11 +38,14 @@ export type ProfileStackParamList = {
   Subscription: undefined;
 };
 
+
+
 export type MainTabParamList = {
   Journey: NavigatorScreenParams<JourneyStackParamList>;
   Courses: NavigatorScreenParams<CoursesStackParamList>;
   Home: NavigatorScreenParams<HomeStackParamList>;
   Directory: NavigatorScreenParams<DirectoryStackParamList>;
+  Events: NavigatorScreenParams<EventsStackParamList>;
   Profile: NavigatorScreenParams<ProfileStackParamList>;
 };
 

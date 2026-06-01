@@ -1,5 +1,6 @@
 import React, { Component, ReactNode } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { scale, verticalScale, moderateScale } from '../../utils/responsive';
 
 interface Props {
   children: ReactNode;
@@ -65,34 +66,34 @@ const s = StyleSheet.create({
     backgroundColor: '#FAFAF5',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 32,
+    paddingHorizontal: scale(32),
   },
   warningIcon: {
-    fontSize: 32,
-    marginBottom: 16,
+    fontSize: moderateScale(32),
+    marginBottom: verticalScale(16),
   },
   title: {
-    fontSize: 20,
+    fontSize: moderateScale(20),
     fontWeight: 'bold',
     color: '#1B4332',
-    marginBottom: 8,
+    marginBottom: verticalScale(8),
     textAlign: 'center',
   },
   message: {
-    fontSize: 16,
+    fontSize: moderateScale(16),
     color: '#6B7280',
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: verticalScale(24),
   },
   retryButton: {
     backgroundColor: '#1B4332',
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingHorizontal: scale(32),
+    paddingVertical: verticalScale(12),
+    borderRadius: moderateScale(8),
   },
   retryText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: moderateScale(16),
   },
 });

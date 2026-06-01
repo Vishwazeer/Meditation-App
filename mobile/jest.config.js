@@ -15,6 +15,5 @@ module.exports = {
   setupFiles: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '\\.css$': '<rootDir>/__mocks__/styleMock.js',
-    'react-native-worklets-core': '<rootDir>/__mocks__/styleMock.js',
   },
 };

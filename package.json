@@ -1,4 +1,10 @@
 {
   "private": true,
-  "description": "MAA Meditation App — monorepo root"
+  "description": "MAA Meditation App — monorepo root",
+  "dependencies": {
+    "react-native-reanimated": "^4.4.0"
+  },
+  "devDependencies": {
+    "@react-native-community/cli": "^20.1.3"
+  }
 }

@@ -1,0 +1,20 @@
+diff --git a/android/src/main/jni/CMakeLists.txt b/android/src/main/jni/CMakeLists.txt
+--- a/android/src/main/jni/CMakeLists.txt
++++ b/android/src/main/jni/CMakeLists.txt
+@@ -34,6 +34,7 @@ if (REACTNATIVE_MERGED_SO)
+   target_link_libraries(
+           ${LIB_TARGET_NAME}
+           fbjni
+           jsi
+           reactnative
++          c++_shared
+   )
+ else()
+   target_link_libraries(
+@@ -50,6 +51,7 @@ else()
+           rrc_view
+           turbomodulejsijni
+           yoga
++          c++_shared
+   )
+ endif()
