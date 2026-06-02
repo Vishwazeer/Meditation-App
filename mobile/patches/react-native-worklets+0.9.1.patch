@@ -1,17 +1,16 @@
-diff --git a/android/CMakeLists.txt b/android/CMakeLists.txt
---- a/android/CMakeLists.txt
-+++ b/android/CMakeLists.txt
-@@ -39,11 +39,13 @@ target_include_directories(worklets
- find_package(ReactAndroid REQUIRED CONFIG)
- find_package(fbjni REQUIRED CONFIG)
+diff --git a/node_modules/react-native-worklets/android/CMakeLists.txt b/node_modules/react-native-worklets/android/CMakeLists.txt
+index 9f803d3..6c0cfb6 100644
+--- a/node_modules/react-native-worklets/android/CMakeLists.txt
++++ b/node_modules/react-native-worklets/android/CMakeLists.txt
+@@ -83,8 +83,10 @@ target_include_directories(
+ # build shared lib
+ set_target_properties(worklets PROPERTIES LINKER_LANGUAGE CXX)
  
 +target_compile_options(worklets PRIVATE -fexceptions -frtti)
 +
- target_link_libraries(worklets
-   ReactAndroid::reactnative
-   ReactAndroid::jsi
-   fbjni::fbjni
-   android
-   log
-+  c++_shared
- )
+ target_link_libraries(worklets android log ReactAndroid::reactnative
+-                      ReactAndroid::jsi fbjni::fbjni)
++                      ReactAndroid::jsi fbjni::fbjni c++_shared)
+ 
+ if(ReactAndroid_VERSION_MINOR GREATER_EQUAL 82)
+   target_link_libraries(worklets hermes-engine::hermesvm)

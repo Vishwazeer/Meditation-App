@@ -1,9 +1,12 @@
-diff --git a/ReactAndroid/cmake-utils/ReactNative-application.cmake b/ReactAndroid/cmake-utils/ReactNative-application.cmake
---- a/ReactAndroid/cmake-utils/ReactNative-application.cmake
-+++ b/ReactAndroid/cmake-utils/ReactNative-application.cmake
-@@ -81,6 +81,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
+diff --git a/node_modules/react-native/ReactAndroid/cmake-utils/ReactNative-application.cmake b/node_modules/react-native/ReactAndroid/cmake-utils/ReactNative-application.cmake
+index baa0fef..806ae34 100644
+--- a/node_modules/react-native/ReactAndroid/cmake-utils/ReactNative-application.cmake
++++ b/node_modules/react-native/ReactAndroid/cmake-utils/ReactNative-application.cmake
+@@ -82,6 +82,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
          fbjni                               # via 3rd party prefab
          jsi                                 # prefab ready
          reactnative                         # prefab ready
 +        -lc++_shared
  )
+ 
+ # We use an interface target to propagate flags to all the generated targets

@@ -17,6 +17,8 @@ export type HomeStackParamList = {
   EventDetail: { eventId: string };
 };
 
+export type EventsStackParamList = HomeStackParamList;
+
 export type CoursesStackParamList = {
   CoursesMain: undefined;
   CourseDetail: { courseId: string };
